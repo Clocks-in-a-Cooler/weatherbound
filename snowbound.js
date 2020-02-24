@@ -34,7 +34,7 @@ function animate(time) {
 //game state stuff --------------------------------------------------------------------------------
 var snowbound = {
     current_level: null,
-    level_number: 0,
+    level_number: -1,
     next_level: function() {
         this.level_number++;
         this.current_level = new Level(GAME_LEVELS[this.level_number]);
@@ -79,7 +79,7 @@ function draw() {
     }
 
     //draw the player
-    cxt.fillStyle = "azure";
+    cxt.fillStyle = "indianred";
     cxt.fillRect((player.pos.x - viewport.top_left.x) * viewport.scale,
                  (player.pos.y - viewport.top_left.y) * viewport.scale,
                  player.size.x * viewport.scale,
@@ -91,7 +91,7 @@ var viewport = {
     scale: 20,
     offset: new Vector(0, 0),
     width: canvas.width / 20,
-    height: canvas.width / 20,
+    height: canvas.height / 20,
     top_left: null, bottom_right: null,
     update: function() {
         //i'm getting lazy!
@@ -106,7 +106,7 @@ var viewport = {
 
 //player and keys ---------------------------------------------------------------------------------
 var player = {
-    speed: 0.3,
+    speed: 0.2,
     pos: null,
     keys: {
         up: false,
@@ -115,17 +115,27 @@ var player = {
         right: false,
         space: false,
     },
-    size: new Vector(0.9, 1.5),
+    size: new Vector(1, 2),
 
     update: function(lapse) {
         if (this.pos == null) {
             return;
         }
 
-        this.pos.x += ((this.keys.left ? -1 : 0) + (this.keys.right ? 1 : 0)) * this.speed;
-        this.pos.y += ((this.keys.up ? -1 : 0) + (this.keys.down ? 1 : 0)) * this.speed;
+        var new_x = this.pos.x + ((this.keys.left ? -1 : 0) + (this.keys.right ? 1 : 0)) * this.speed;
+        var new_y = this.pos.y + ((this.keys.up ? -1 : 0) + (this.keys.down ? 1 : 0)) * this.speed;
 
-        //i'll add collision detection
+        //i'll add collision detection later
+        var new_pos_x = new Vector(new_x, this.pos.y);
+        var new_pos_y = new Vector(this.pos.x, new_y);
+
+        if (!snowbound.current_level.is_overlapping(new_pos_x, this.size)) {
+            this.pos.x = new_x;
+        }
+
+        if (!snowbound.current_level.is_overlapping(new_pos_y, this.size)) {
+            this.pos.y = new_y;
+        }
     },
 
     place: function(pos) {
@@ -238,6 +248,24 @@ Level.prototype.get_in_view = function(start, end) {
     return in_view;
 };
 
-Level.prototype.get_overlapping = function(start, end) {
+Level.prototype.is_overlapping = function(start, size) {
+    var start_x = Math.floor(start.x), start_y = Math.floor(start.y);
+    var end_x = Math.floor(start_x + size.x), end_y = Math.floor(start_y + size.y);
 
+    while (start_y <= end_y) {
+        if (this.tiles[start_y] == undefined) {
+            start_y++;
+            continue;
+        }
+
+        for (var x = start_x; x <= end_x; x++) {
+            if (this.tiles[start_y][x] != "blank") {
+                return true;
+            }
+        }
+
+        start_y++;
+    }
+
+    return false;
 };
