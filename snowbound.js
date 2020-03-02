@@ -52,7 +52,7 @@ function get_sprite(path) {
 
 var wall       = get_sprite("snow.png");
 var ice        = get_sprite("ice.png");
-var background = get_sprite("background.png");
+var background = get_sprite("background2.png");
 
 var background_colour = "steelblue";
 
@@ -61,6 +61,16 @@ function draw() {
     cxt.clearRect(0, 0, canvas.width, canvas.height);
     viewport.update();
     cxt.drawImage(background, 0, 0);
+
+    //draw the player
+    cxt.fillStyle = "indianred";
+    cxt.fillRect((player.pos.x - viewport.top_left.x) * viewport.scale,
+                 (player.pos.y - viewport.top_left.y) * viewport.scale,
+                 player.size.x * viewport.scale,
+                 player.size.y * viewport.scale
+    );
+
+
     var in_view = snowbound.current_level.get_in_view(viewport.top_left, viewport.bottom_right);
 
     for (var y = 0; y < in_view.length; y++) {
@@ -77,14 +87,6 @@ function draw() {
             }
         }
     }
-
-    //draw the player
-    cxt.fillStyle = "indianred";
-    cxt.fillRect((player.pos.x - viewport.top_left.x) * viewport.scale,
-                 (player.pos.y - viewport.top_left.y) * viewport.scale,
-                 player.size.x * viewport.scale,
-                 player.size.y * viewport.scale
-        );
 }
 
 var viewport = {
@@ -104,9 +106,11 @@ var viewport = {
     },
 };
 
+// https://www.msn.com/en-ca/news/technology/skeptic-of-world-being-round-dies-in-california-rocket-crash/ar-BB10iW1U HAHAHAHAHAHAHAHAHAHAHAHAHAHA
 //player and keys ---------------------------------------------------------------------------------
 var player = {
     speed: 0.2,
+    motion: new Vector(0, 0),
     pos: null,
     keys: {
         up: false,
@@ -115,12 +119,13 @@ var player = {
         right: false,
         space: false,
     },
-    size: new Vector(1, 2),
+    size: new Vector(1, 1.4),
 
     update: function(lapse) {
         if (this.pos == null) {
             return;
         }
+
 
         var new_x = this.pos.x + ((this.keys.left ? -1 : 0) + (this.keys.right ? 1 : 0)) * this.speed;
         var new_y = this.pos.y + ((this.keys.up ? -1 : 0) + (this.keys.down ? 1 : 0)) * this.speed;
@@ -136,6 +141,14 @@ var player = {
         if (!snowbound.current_level.is_overlapping(new_pos_y, this.size)) {
             this.pos.y = new_y;
         }
+
+    },
+
+    is_supported: function() {
+        return (
+            snowbound.current_level.get_tile(new Vector(Math.floor(this.pos.x), Math.floor(this.pos.y + this.size.y))) != "blank" ||
+            snowbound.current_level.get_tile(new Vector(Math.floor(this.pos.x) + 1, Math.floor(this.pos.y + this.size.y))) != "blank"
+        );
     },
 
     place: function(pos) {
@@ -249,8 +262,12 @@ Level.prototype.get_in_view = function(start, end) {
 };
 
 Level.prototype.is_overlapping = function(start, size) {
+    //crude collision detection
     var start_x = Math.floor(start.x), start_y = Math.floor(start.y);
     var end_x = Math.floor(start_x + size.x), end_y = Math.floor(start_y + size.y);
+    if (start_y < 0) {
+        return true;
+    }
 
     while (start_y <= end_y) {
         if (this.tiles[start_y] == undefined) {
