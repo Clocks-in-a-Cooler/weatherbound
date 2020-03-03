@@ -35,6 +35,7 @@ function animate(time) {
 var snowbound = {
     current_level: null,
     level_number: -1,
+    gravity: 0.00009,
     next_level: function() {
         this.level_number++;
         this.current_level = new Level(GAME_LEVELS[this.level_number]);
@@ -52,7 +53,7 @@ function get_sprite(path) {
 
 var wall       = get_sprite("snow.png");
 var ice        = get_sprite("ice.png");
-var background = get_sprite("background2.png");
+var background = get_sprite("background.png");
 
 var background_colour = "steelblue";
 
@@ -65,7 +66,7 @@ function draw() {
     //draw the player
     cxt.fillStyle = "indianred";
     cxt.fillRect((player.pos.x - viewport.top_left.x) * viewport.scale,
-                 (player.pos.y - viewport.top_left.y) * viewport.scale,
+                 (player.pos.y - 0.4 - viewport.top_left.y) * viewport.scale,
                  player.size.x * viewport.scale,
                  player.size.y * viewport.scale
     );
@@ -119,16 +120,27 @@ var player = {
         right: false,
         space: false,
     },
-    size: new Vector(1, 1.4),
+    size: new Vector(1, 1.8),
+    jump_speed: -0.03,
+    jumped: false,
 
     update: function(lapse) {
         if (this.pos == null) {
             return;
         }
 
+        if (this.keys.up && !this.jumped) {
+            this.jumped = true;
+            this.jump();
+        }
+
+        this.jumped = this.keys.up && this.jumped;
 
         var new_x = this.pos.x + ((this.keys.left ? -1 : 0) + (this.keys.right ? 1 : 0)) * this.speed;
-        var new_y = this.pos.y + ((this.keys.up ? -1 : 0) + (this.keys.down ? 1 : 0)) * this.speed;
+        //var new_y = this.pos.y + ((this.keys.up ? -1 : 0) + (this.keys.down ? 1 : 0)) * this.speed;
+
+        this.motion.y += lapse * snowbound.gravity;
+        var new_y = this.pos.y + this.motion.y * lapse;
 
         //i'll add collision detection later
         var new_pos_x = new Vector(new_x, this.pos.y);
@@ -138,7 +150,9 @@ var player = {
             this.pos.x = new_x;
         }
 
-        if (!snowbound.current_level.is_overlapping(new_pos_y, this.size)) {
+        if (snowbound.current_level.is_overlapping(new_pos_y, this.size)) {
+            this.motion.y = 0;
+        } else {
             this.pos.y = new_y;
         }
 
@@ -149,6 +163,12 @@ var player = {
             snowbound.current_level.get_tile(new Vector(Math.floor(this.pos.x), Math.floor(this.pos.y + this.size.y))) != "blank" ||
             snowbound.current_level.get_tile(new Vector(Math.floor(this.pos.x) + 1, Math.floor(this.pos.y + this.size.y))) != "blank"
         );
+    },
+
+    jump: function() {
+        if (this.is_supported()) {
+            this.motion.y = this.jump_speed;
+        }
     },
 
     place: function(pos) {
