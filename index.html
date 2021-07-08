@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>weatherbound</title>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <canvas></canvas>
+        <div id="linkback">
+            <!-- why not? -->
+            powered by <a href="https://www.weatherapi.com" title="WeatherAPI">WeatherAPI.com</a>
+        </div>
+        <script src="colours.js"></script>
+        <script src="event_handlers.js"></script>
+        <script src="game_state.js"></script>
+        <script src="mappings.js"></script>
+        <script src="weather.js"></script>
+        <script src="vector.js"></script>
+        <script src="entity.js"></script>
+        <script src="player.js"></script>
+        <script src="block.js"></script>
+        <script src="level.js"></script>
+        <script src="graphics.js"></script>
+        <!-- <script src="weatherbound.js"></script> -->
+        <script>
+            // for now
+            // gotta get the platformer part done
+            current_level = new Level([
+                "                                                                        ",
+                "                                                                        ",
+                "                                                                        ",
+                "                                                                        ",
+                "                                                                        ",
+                "                                                                        ",
+                "                                                                        ",
+                "                                                                        ",
+                "                                                                        ",
+                "                                                                        ",
+                "                                                                        ",
+                "                                                                        ",
+                "         @                                                              ",
+                "     ############################################                       ",
+                "                                                                        ",
+                "                                                                        ",
+                "                                                                        ",
+                "                                                                        ",
+                "                                                                        ",
+                "                                                                        ",
+                "                                                                        ",
+                "                                                                        ",
+                "                                                                        ",
+                "                                                                        ",
+                "                                                                        ",
+                "                                                                        ",
+                "                                                                        ",
+                "                                                                        ",
+                "                                                                        ",
+                "                                                                        ",
+                "                                                                        ",
+            ]);
+
+            var last_time = null, lapse = 0;
+            function animate(time) {
+                lapse     = last_time == null ? 0 : (time - last_time);
+                last_time = time;
+
+                current_level.update(15);
+                draw();
+
+                requestAnimationFrame(animate);
+            }
+
+            requestAnimationFrame(animate);
+        </script>
+    </body>
+</html>

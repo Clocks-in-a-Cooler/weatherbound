@@ -1,0 +1,2 @@
+[ ] asking the user for the weather
+[ ] coming up with the weather themes

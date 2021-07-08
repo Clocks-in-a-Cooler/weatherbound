@@ -1,0 +1,5 @@
+special things
+
+snowy:
+- can throw snowballs
+- needs to fight snowmen
