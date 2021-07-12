@@ -1,13 +1,16 @@
-const MOVE_SPEED = 0.004;
-const JUMP       = -0.04;
+const MOVE_SPEED = 0.01;
+const JUMP       = -0.02;
+
+const PLAYER_SIZE = new Vector(1.5, 2.25); //new Vector(3, 4.5);
 
 class Player extends Entity {
     /**
-     * @param {Vector} position 
+     * @param {Vector} position
      */
     constructor(position) {
-        super(position, new Vector(0.75, 1.3));
-        this.colour   = "red";
+        super(position, PLAYER_SIZE);
+        this.colour = "red";
+        this.facing = "right";
     }
 
     /**
@@ -21,9 +24,11 @@ class Player extends Entity {
 
         if (keys[key_mapping.left]) {
             this.motion.x -= MOVE_SPEED;
+            this.facing    = "left";
         }
         if (keys[key_mapping.right]) {
             this.motion.x += MOVE_SPEED;
+            this.facing    = "right";
         }
         if (rising_edge(key_mapping.up)) {
             this.motion.y = JUMP;

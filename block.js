@@ -20,3 +20,5 @@ class Block extends Entity {
         return true;
     }
 }
+
+const BLOCK_SIZE = new Vector(1, 1);

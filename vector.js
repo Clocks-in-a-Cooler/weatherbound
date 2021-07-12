@@ -16,6 +16,10 @@ class Vector {
         return Math.abs(this.x) + Math.abs(this.y);
     }
 
+    get clone() {
+        return new Vector(this.x, this.y);
+    }
+
     /**
      * @param {Vector} other
      */

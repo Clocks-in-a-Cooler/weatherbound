@@ -10,6 +10,7 @@ class Entity {
         this.collideable = true;
         this.colour      = "white";
         this.active      = true;
+        this.fragile     = false;
     }
 
     get center() {
@@ -52,12 +53,14 @@ class Entity {
             var other = entities[c];
             if (!other.collideable || other == this) continue;
             if (check_collision(future_x, this.size, other.position, other.size)) {
-                future_x.x    = this.position.x;
+                future_x.x    = (this.position.x < other.position.x) ? (other.position.x - this.size.x - 0.01) : (other.position.x + other.size.x + 0.01);
                 this.motion.x = 0;
+                if (this.fragile) this.active = false;
             }
             if (check_collision(future_y, this.size, other.position, other.size)) {
-                future_y.y    = this.position.y;
+                future_y.y    = (this.position.y < other.position.y) ? (other.position.y - this.size.y - 0.01) : (other.position.y + other.size.y + 0.01);
                 this.motion.y = 0;
+                if (this.fragile) this.active = false;
             }
         }
         this.position.x = future_x.x;
